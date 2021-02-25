@@ -30,6 +30,7 @@ public class CosmeticArmor implements ModInitializer {
 		CuriosApi.enqueueSlotType(SlotTypeInfo.BuildScheme.REGISTER, new SlotTypeInfo.Builder(CHESTPLATE).icon(new Identifier("cosmetic-armor", "gui/cosmetic_chestplate_icon")).priority(3).build());
 		CuriosApi.enqueueSlotType(SlotTypeInfo.BuildScheme.REGISTER, new SlotTypeInfo.Builder(LEGGINGS).icon(new Identifier("cosmetic-armor", "gui/cosmetic_leggings_icon")).priority(4).build());
 		CuriosApi.enqueueSlotType(SlotTypeInfo.BuildScheme.REGISTER, new SlotTypeInfo.Builder(BOOTS).icon(new Identifier("cosmetic-armor", "gui/cosmetic_boots_icon")).priority(5).build());
+		ArmorTagArtificer.artifice();
 	}
 
 	public static ItemStack getStackInCosmeticSlot(LivingEntity entity, EquipmentSlot slot) {

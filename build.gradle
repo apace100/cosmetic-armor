@@ -18,6 +18,7 @@ repositories {
 		name = "Ladysnake Libs"
 		url = 'https://dl.bintray.com/ladysnake/libs'
 	}
+	jcenter()
 }
 
 dependencies {
@@ -30,6 +31,9 @@ dependencies {
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
 	modImplementation "top.theillusivec4.curios:curios-fabric:${project.curios_version}"
+
+	modImplementation "com.lettuce.fudge:artifice:${project.artifice_version}"
+	include "com.lettuce.fudge:artifice:${project.artifice_version}"
 }
 
 processResources {
