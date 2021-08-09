@@ -1,0 +1,15 @@
+{
+  "replace": false,
+  "amount": 1,
+  "order": 0,
+  "icon": "cosmetic-armor:slots/cosmetic_legs",
+  "validator_predicates": [
+    "cosmetic-armor:legs"
+  ],
+  "quick_move_predicates": [
+    "trinkets:none"
+  ],
+  "tooltip_predicates": [
+    "trinkets:none"
+  ]
+}

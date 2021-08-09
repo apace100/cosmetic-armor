@@ -1,6 +1,6 @@
 {
-  "curios.identifier.cosmetic_helmet": "Cosmetic Helmet",
-  "curios.identifier.cosmetic_chestplate": "Cosmetic Chestplate",
-  "curios.identifier.cosmetic_leggings": "Cosmetic Leggings",
-  "curios.identifier.cosmetic_boots": "Cosmetic Boots"
+  "trinkets.slot.head.cosmetic": "Cosmetic",
+  "trinkets.slot.chest.cosmetic": "Cosmetic",
+  "trinkets.slot.legs.cosmetic": "Cosmetic",
+  "trinkets.slot.feet.cosmetic": "Cosmetic"
 }
