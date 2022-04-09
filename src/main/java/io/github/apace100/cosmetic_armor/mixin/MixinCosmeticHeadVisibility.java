@@ -3,7 +3,6 @@ package io.github.apace100.cosmetic_armor.mixin;
 import io.github.apace100.cosmetic_armor.CosmeticArmor;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.render.entity.feature.ArmorFeatureRenderer;
 import net.minecraft.client.render.entity.feature.HeadFeatureRenderer;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
@@ -20,7 +19,7 @@ public class MixinCosmeticHeadVisibility {
 	private ItemStack modifyVisibleHead(LivingEntity entity, EquipmentSlot slot) {
 		ItemStack equippedStack = entity.getEquippedStack(slot);
 		ItemStack cosmeticStack = CosmeticArmor.getCosmeticArmor(entity, slot);
-		if(!cosmeticStack.isEmpty() && (equippedStack.isEmpty() || !CosmeticArmor.ALWAYS_VISIBLE.contains(equippedStack.getItem()))) {
+		if(!cosmeticStack.isEmpty() && (equippedStack.isEmpty() || !equippedStack.isIn(CosmeticArmor.ALWAYS_VISIBLE))) {
 			return cosmeticStack;
 		}
 		return equippedStack;

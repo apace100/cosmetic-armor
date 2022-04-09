@@ -2,34 +2,33 @@ package io.github.apace100.cosmetic_armor;
 
 import dev.emi.trinkets.api.*;
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.tag.TagRegistry;
 import net.fabricmc.fabric.api.util.TriState;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.tag.Tag;
+import net.minecraft.tag.TagKey;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Pair;
+import net.minecraft.util.registry.Registry;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 public class CosmeticArmor implements ModInitializer {
 
 	public static final String MODID = "cosmetic-armor";
 
-	public static final Tag<Item> BLACKLIST = TagRegistry.item(id("blacklist"));
-	public static final Tag<Item> ALWAYS_VISIBLE = TagRegistry.item(id("always_visible"));
+	public static final TagKey<Item> BLACKLIST = TagKey.of(Registry.ITEM_KEY, id("blacklist"));
+	public static final TagKey<Item> ALWAYS_VISIBLE = TagKey.of(Registry.ITEM_KEY, id("always_visible"));
 
 	@Override
 	public void onInitialize() {
 		for(int i = 0; i < 4; i++) {
 			EquipmentSlot slot = EquipmentSlot.fromTypeIndex(EquipmentSlot.Type.ARMOR, i);
 			TrinketsApi.registerTrinketPredicate(id(slot.getName()), (stack, slotReference, entity) -> {
-				if(BLACKLIST.contains(stack.getItem())) {
+				if(stack.isIn(BLACKLIST)) {
 					return TriState.FALSE;
 				}
 				if(MobEntity.getPreferredEquipmentSlot(stack) == slot) {
