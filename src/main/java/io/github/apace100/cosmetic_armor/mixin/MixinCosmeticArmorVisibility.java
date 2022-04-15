@@ -45,7 +45,7 @@ public abstract class MixinCosmeticArmorVisibility<T extends LivingEntity, M ext
 	private void renderCustomArmor(MatrixStack matrices, VertexConsumerProvider vertexConsumers, T entity, EquipmentSlot slot, int light, A model, CallbackInfo ci) {
 		ItemStack equippedStack = entity.getEquippedStack(slot);
 		ItemStack cosmeticStack = CosmeticArmor.getCosmeticArmor(entity, slot);
-		if(!cosmeticStack.isEmpty() && (equippedStack.isEmpty() || !CosmeticArmor.ALWAYS_VISIBLE.contains(equippedStack.getItem()))) {
+		if(!cosmeticStack.isEmpty() && (equippedStack.isEmpty() || !equippedStack.isIn(CosmeticArmor.ALWAYS_VISIBLE))) {
 			ArmorRenderer renderer = ArmorRendererRegistryImpl.get(cosmeticStack.getItem());
 
 			if (renderer != null) {
@@ -65,7 +65,7 @@ public abstract class MixinCosmeticArmorVisibility<T extends LivingEntity, M ext
 	private ItemStack modifyVisibleArmor(LivingEntity entity, EquipmentSlot slot) {
 		ItemStack equippedStack = entity.getEquippedStack(slot);
 		ItemStack cosmeticStack = CosmeticArmor.getCosmeticArmor(entity, slot);
-		if(!cosmeticStack.isEmpty() && (equippedStack.isEmpty() || !CosmeticArmor.ALWAYS_VISIBLE.contains(equippedStack.getItem()))) {
+		if(!cosmeticStack.isEmpty() && (equippedStack.isEmpty() || !equippedStack.isIn(CosmeticArmor.ALWAYS_VISIBLE))) {
 			return cosmeticStack;
 		}
 		return equippedStack;
