@@ -27,6 +27,10 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.LinkedList;
+import java.util.List;
+import java.util.function.Supplier;
+
 @Environment(EnvType.CLIENT)
 @Mixin(value = ArmorFeatureRenderer.class, priority = 800)
 public abstract class MixinCosmeticArmorVisibility<T extends LivingEntity, M extends BipedEntityModel<T>, A extends BipedEntityModel<T>> extends FeatureRenderer<T, M> {
@@ -36,6 +40,9 @@ public abstract class MixinCosmeticArmorVisibility<T extends LivingEntity, M ext
 	@Shadow protected abstract boolean usesSecondLayer(EquipmentSlot slot);
 
 	@Shadow protected abstract void renderArmorParts(MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, ArmorItem item, boolean usesSecondLayer, A model, boolean legs, float red, float green, float blue, @Nullable String overlay);
+
+	@Unique
+	private List<Supplier<Boolean>> cosmeticarmor$renderList = new LinkedList<>();
 
 	public MixinCosmeticArmorVisibility(FeatureRendererContext<T, M> context) {
 		super(context);
@@ -49,16 +56,28 @@ public abstract class MixinCosmeticArmorVisibility<T extends LivingEntity, M ext
 			ArmorRenderer renderer = ArmorRendererRegistryImpl.get(cosmeticStack.getItem());
 
 			if (renderer != null) {
-				renderer.render(matrices, vertexConsumers, cosmeticStack, entity, slot, light,
-					(BipedEntityModel<LivingEntity>) getContextModel());
+				cosmeticarmor$renderList.add(() -> {
+					renderer.render(matrices, vertexConsumers, cosmeticStack, entity, slot, light,
+						(BipedEntityModel<LivingEntity>) getContextModel());
+					return true;
+				});
 				ci.cancel();
 			} else {
 				if(ArmorRendererRegistryImpl.get(equippedStack.getItem()) != null) {
-					cosmeticarmor$renderArmor(matrices, vertexConsumers, cosmeticStack, slot, light, model);
+					cosmeticarmor$renderList.add(() -> {
+						cosmeticarmor$renderArmor(matrices, vertexConsumers, cosmeticStack, slot, light, model);
+						return true;
+					});
 					ci.cancel();
 				}
 			}
 		}
+	}
+
+	@Inject(method = "render(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;ILnet/minecraft/entity/LivingEntity;FFFFFF)V", at = @At("TAIL"))
+	private void renderDelayed(MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, T livingEntity, float f, float g, float h, float j, float k, float l, CallbackInfo ci) {
+		cosmeticarmor$renderList.forEach(Supplier::get);
+		cosmeticarmor$renderList.clear();
 	}
 
 	@Redirect(method = "renderArmor", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;getEquippedStack(Lnet/minecraft/entity/EquipmentSlot;)Lnet/minecraft/item/ItemStack;"))
