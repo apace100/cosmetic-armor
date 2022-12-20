@@ -100,7 +100,7 @@ public abstract class MixinCosmeticArmorVisibility<T extends LivingEntity, M ext
 		if (armorItem.getSlotType() != armorSlot) {
 			return;
 		}
-		this.getContextModel().setAttributes(model);
+		this.getContextModel().copyBipedStateTo(model);
 		this.setVisible(model, armorSlot);
 		boolean bl = this.usesSecondLayer(armorSlot);
 		boolean bl2 = itemStack.hasGlint();

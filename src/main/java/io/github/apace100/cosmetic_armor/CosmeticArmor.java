@@ -8,10 +8,10 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.tag.TagKey;
+import net.minecraft.registry.tag.*;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Pair;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.registry.RegistryKeys;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,8 +20,8 @@ public class CosmeticArmor implements ModInitializer {
 
 	public static final String MODID = "cosmetic-armor";
 
-	public static final TagKey<Item> BLACKLIST = TagKey.of(Registry.ITEM_KEY, id("blacklist"));
-	public static final TagKey<Item> ALWAYS_VISIBLE = TagKey.of(Registry.ITEM_KEY, id("always_visible"));
+	public static final TagKey<Item> BLACKLIST = TagKey.of(RegistryKeys.ITEM, id("blacklist"));
+	public static final TagKey<Item> ALWAYS_VISIBLE = TagKey.of(RegistryKeys.ITEM, id("always_visible"));
 
 	@Override
 	public void onInitialize() {
