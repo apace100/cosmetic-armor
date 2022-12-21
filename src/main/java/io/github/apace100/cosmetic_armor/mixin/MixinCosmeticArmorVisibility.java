@@ -38,7 +38,7 @@ public abstract class MixinCosmeticArmorVisibility<T extends LivingEntity, M ext
 
 	@Shadow protected abstract void setVisible(A bipedModel, EquipmentSlot slot);
 
-	@Shadow protected abstract boolean usesSecondLayer(EquipmentSlot slot);
+	@Shadow protected abstract boolean usesInnerModel(EquipmentSlot slot);
 
 	@Shadow protected abstract void renderArmorParts(MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, ArmorItem item, boolean usesSecondLayer, A model, boolean legs, float red, float green, float blue, @Nullable String overlay);
 
@@ -102,7 +102,7 @@ public abstract class MixinCosmeticArmorVisibility<T extends LivingEntity, M ext
 		}
 		this.getContextModel().copyBipedStateTo(model);
 		this.setVisible(model, armorSlot);
-		boolean bl = this.usesSecondLayer(armorSlot);
+		boolean bl = this.usesInnerModel(armorSlot);
 		boolean bl2 = itemStack.hasGlint();
 		if (armorItem instanceof DyeableArmorItem) {
 			int i = ((DyeableArmorItem)armorItem).getColor(itemStack);
