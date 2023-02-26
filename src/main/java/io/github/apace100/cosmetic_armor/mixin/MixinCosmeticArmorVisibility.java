@@ -1,6 +1,7 @@
 package io.github.apace100.cosmetic_armor.mixin;
 
 import io.github.apace100.cosmetic_armor.CosmeticArmor;
+import io.github.apace100.cosmetic_armor.DeferredRenderList;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.ArmorRenderer;
@@ -34,7 +35,7 @@ import java.util.function.Supplier;
 
 @Environment(EnvType.CLIENT)
 @Mixin(value = ArmorFeatureRenderer.class, priority = 800)
-public abstract class MixinCosmeticArmorVisibility<T extends LivingEntity, M extends BipedEntityModel<T>, A extends BipedEntityModel<T>> extends FeatureRenderer<T, M> {
+public abstract class MixinCosmeticArmorVisibility<T extends LivingEntity, M extends BipedEntityModel<T>, A extends BipedEntityModel<T>> extends FeatureRenderer<T, M> implements DeferredRenderList {
 
 	@Shadow protected abstract void setVisible(A bipedModel, EquipmentSlot slot);
 
@@ -75,12 +76,6 @@ public abstract class MixinCosmeticArmorVisibility<T extends LivingEntity, M ext
 		}
 	}
 
-	@Inject(method = "render(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;ILnet/minecraft/entity/LivingEntity;FFFFFF)V", at = @At("TAIL"))
-	private void renderDelayed(MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, T livingEntity, float f, float g, float h, float j, float k, float l, CallbackInfo ci) {
-		cosmeticarmor$renderList.forEach(Supplier::get);
-		cosmeticarmor$renderList.clear();
-	}
-
 	@Redirect(method = "renderArmor", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;getEquippedStack(Lnet/minecraft/entity/EquipmentSlot;)Lnet/minecraft/item/ItemStack;"))
 	private ItemStack modifyVisibleArmor(LivingEntity entity, EquipmentSlot slot) {
 		ItemStack equippedStack = entity.getEquippedStack(slot);
@@ -114,5 +109,10 @@ public abstract class MixinCosmeticArmorVisibility<T extends LivingEntity, M ext
 		} else {
 			this.renderArmorParts(matrices, vertexConsumers, light, armorItem, bl2, model, bl, 1.0f, 1.0f, 1.0f, null);
 		}
+	}
+	
+	@Override
+	public List<Supplier<Boolean>> deferredRenderList() {
+		return this.cosmeticarmor$renderList;
 	}
 }
