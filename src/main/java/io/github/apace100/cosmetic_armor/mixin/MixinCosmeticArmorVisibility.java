@@ -33,7 +33,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 @Environment(EnvType.CLIENT)
-@Mixin(value = ArmorFeatureRenderer.class, priority = 800)
+@Mixin(value = ArmorFeatureRenderer.class, priority = 650)
 public abstract class MixinCosmeticArmorVisibility<T extends LivingEntity, M extends BipedEntityModel<T>, A extends BipedEntityModel<T>> extends FeatureRenderer<T, M> {
 
 	@Shadow protected abstract void setVisible(A bipedModel, EquipmentSlot slot);
