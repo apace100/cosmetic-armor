@@ -28,6 +28,9 @@ dependencies {
 
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
+	modApi("dev.onyxstudios.cardinal-components-api:cardinal-components-base:5.2.0") {
+		exclude(group: "net.fabricmc.fabric-api")
+	}
 	modImplementation "dev.emi:trinkets:${trinkets_version}"
 }
 

@@ -14,9 +14,8 @@ import net.minecraft.client.render.entity.model.BipedEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.item.ArmorItem;
-import net.minecraft.item.DyeableArmorItem;
-import net.minecraft.item.ItemStack;
+import net.minecraft.item.*;
+import net.minecraft.item.trim.ArmorTrim;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -40,7 +39,11 @@ public abstract class MixinCosmeticArmorVisibility<T extends LivingEntity, M ext
 
 	@Shadow protected abstract boolean usesInnerModel(EquipmentSlot slot);
 
-	@Shadow protected abstract void renderArmorParts(MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, ArmorItem item, boolean usesSecondLayer, A model, boolean legs, float red, float green, float blue, @Nullable String overlay);
+	@Shadow protected abstract void renderArmorParts(MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, ArmorItem item, A model, boolean secondTextureLayer, float red, float green, float blue, @Nullable String overlay);
+
+	@Shadow protected abstract void renderTrim(ArmorMaterial material, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, ArmorTrim trim, A model, boolean leggings);
+
+	@Shadow protected abstract void renderGlint(MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, A model);
 
 	@Unique
 	private List<Supplier<Boolean>> cosmeticarmor$renderList = new LinkedList<>();
@@ -66,7 +69,7 @@ public abstract class MixinCosmeticArmorVisibility<T extends LivingEntity, M ext
 			} else {
 				if(ArmorRendererRegistryImpl.get(equippedStack.getItem()) != null) {
 					cosmeticarmor$renderList.add(() -> {
-						cosmeticarmor$renderArmor(matrices, vertexConsumers, cosmeticStack, slot, light, model);
+						cosmeticarmor$renderArmor(matrices, vertexConsumers, entity, cosmeticStack, slot, light, model);
 						return true;
 					});
 					ci.cancel();
@@ -92,27 +95,33 @@ public abstract class MixinCosmeticArmorVisibility<T extends LivingEntity, M ext
 	}
 
 	@Unique
-	private void cosmeticarmor$renderArmor(MatrixStack matrices, VertexConsumerProvider vertexConsumers, ItemStack itemStack, EquipmentSlot armorSlot, int light, A model) {
-		if (!(itemStack.getItem() instanceof ArmorItem)) {
-			return;
+	private void cosmeticarmor$renderArmor(MatrixStack matrices, VertexConsumerProvider vertexConsumers, T entity, ItemStack itemStack, EquipmentSlot armorSlot, int light, A model) {
+		Item var9 = itemStack.getItem();
+		if (var9 instanceof ArmorItem armorItem) {
+			if (armorItem.getSlotType() == armorSlot) {
+				((M) this.getContextModel()).copyBipedStateTo(model);
+				this.setVisible(model, armorSlot);
+				boolean bl = this.usesInnerModel(armorSlot);
+				if (armorItem instanceof DyeableArmorItem dyeableArmorItem) {
+					int i = dyeableArmorItem.getColor(itemStack);
+					float f = (float) (i >> 16 & 255) / 255.0F;
+					float g = (float) (i >> 8 & 255) / 255.0F;
+					float h = (float) (i & 255) / 255.0F;
+					this.renderArmorParts(matrices, vertexConsumers, light, armorItem, model, bl, f, g, h, (String) null);
+					this.renderArmorParts(matrices, vertexConsumers, light, armorItem, model, bl, 1.0F, 1.0F, 1.0F, "overlay");
+				} else {
+					this.renderArmorParts(matrices, vertexConsumers, light, armorItem, model, bl, 1.0F, 1.0F, 1.0F, (String) null);
+				}
+
+				ArmorTrim.getTrim(entity.getWorld().getRegistryManager(), itemStack).ifPresent((trim) -> {
+					this.renderTrim(armorItem.getMaterial(), matrices, vertexConsumers, light, trim, model, bl);
+				});
+				if (itemStack.hasGlint()) {
+					this.renderGlint(matrices, vertexConsumers, light, model);
+				}
+
+			}
 		}
-		ArmorItem armorItem = (ArmorItem)itemStack.getItem();
-		if (armorItem.getSlotType() != armorSlot) {
-			return;
-		}
-		this.getContextModel().copyBipedStateTo(model);
-		this.setVisible(model, armorSlot);
-		boolean bl = this.usesInnerModel(armorSlot);
-		boolean bl2 = itemStack.hasGlint();
-		if (armorItem instanceof DyeableArmorItem) {
-			int i = ((DyeableArmorItem)armorItem).getColor(itemStack);
-			float f = (float)(i >> 16 & 0xFF) / 255.0f;
-			float g = (float)(i >> 8 & 0xFF) / 255.0f;
-			float h = (float)(i & 0xFF) / 255.0f;
-			this.renderArmorParts(matrices, vertexConsumers, light, armorItem, bl2, model, bl, f, g, h, null);
-			this.renderArmorParts(matrices, vertexConsumers, light, armorItem, bl2, model, bl, 1.0f, 1.0f, 1.0f, "overlay");
-		} else {
-			this.renderArmorParts(matrices, vertexConsumers, light, armorItem, bl2, model, bl, 1.0f, 1.0f, 1.0f, null);
-		}
+
 	}
 }
