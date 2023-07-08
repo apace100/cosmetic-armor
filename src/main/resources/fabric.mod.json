@@ -32,5 +32,17 @@
     "minecraft": ">=1.20",
     "java": ">=17",
     "trinkets": "*"
+  },
+
+  "custom": {
+    "mc-publish": {
+      "modrinth": "JrIYhb1P",
+      "curseforge": "436659",
+      "loaders": ["fabric", "quilt"],
+      "dependencies": [
+        "fabric(required){modrinth:P7dR8mSH}{curseforge:306612}#(ignore:github)",
+        "trinkets(required){modrinth:5aaWibi9}{curseforge:341284}#(ignore:github)"
+      ]
+    }
   }
 }
