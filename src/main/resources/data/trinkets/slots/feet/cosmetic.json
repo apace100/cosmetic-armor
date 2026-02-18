@@ -2,9 +2,9 @@
   "replace": false,
   "amount": 1,
   "order": 0,
-  "icon": "cosmetic-armor:slots/cosmetic_feet",
+  "icon": "cosmeticarmor:slots/cosmetic_feet",
   "validator_predicates": [
-    "cosmetic-armor:feet"
+    "cosmeticarmor:feet"
   ],
   "quick_move_predicates": [
     "trinkets:none"
