@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "id": "cosmetic-armor",
+  "id": "cosmeticarmor",
   "version": "${version}",
 
   "name": "Cosmetic Armor",
@@ -14,7 +14,7 @@
   },
 
   "license": "MIT",
-  "icon": "assets/cosmetic-armor/icon.png",
+  "icon": "assets/cosmeticarmor/icon.png",
 
   "environment": "*",
   "entrypoints": {
@@ -23,14 +23,14 @@
     ]
   },
   "mixins": [
-    "cosmetic-armor.mixins.json"
+    "cosmeticarmor.mixins.json"
   ],
 
   "depends": {
-    "fabricloader": ">=0.14.0",
+    "minecraft": ">=1.21.6",
+    "fabricloader": ">=0.16.0",
     "fabric": "*",
-    "minecraft": ">=1.20",
-    "java": ">=17",
+    "java": ">=21",
     "trinkets": "*"
   },
 

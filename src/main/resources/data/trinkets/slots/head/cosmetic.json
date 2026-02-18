@@ -2,9 +2,9 @@
   "replace": false,
   "amount": 1,
   "order": 0,
-  "icon": "cosmetic-armor:slots/cosmetic_head",
+  "icon": "cosmeticarmor:slots/cosmetic_head",
   "validator_predicates": [
-    "cosmetic-armor:head"
+    "cosmeticarmor:head"
   ],
   "quick_move_predicates": [
     "trinkets:none"
