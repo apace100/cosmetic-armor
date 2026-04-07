@@ -1,20 +1,31 @@
 {
   "schemaVersion": 1,
-  "id": "cosmetic-armor",
+  "id": "cosmeticarmor",
   "version": "${version}",
 
   "name": "Cosmetic Armor",
   "description": "Adds additional armor slots which can be used to show a different kind of armor than the one you're actually wearing.",
   "authors": [
-    "Apace"
+    {
+      "name": "Apace",
+      "contact": {
+        "github": "https://github.com/apace100"
+      }
+    },
+    {
+      "name": "Mhaks",
+      "contact": {
+        "github": "https://github.com/Mhaks02"
+      }
+    }
   ],
   "contact": {
-    "homepage": "",
-    "sources": ""
+    "homepage": "https://modrinth.com/mod/cosmetic-armor-updated",
+    "sources": "https://github.com/Mhaks02/cosmetic-armor"
   },
 
   "license": "MIT",
-  "icon": "assets/cosmetic-armor/icon.png",
+  "icon": "assets/cosmeticarmor/icon.png",
 
   "environment": "*",
   "entrypoints": {
@@ -23,26 +34,13 @@
     ]
   },
   "mixins": [
-    "cosmetic-armor.mixins.json"
+    "cosmeticarmor.mixins.json"
   ],
 
   "depends": {
-    "fabricloader": ">=0.14.0",
-    "fabric": "*",
-    "minecraft": ">=1.20",
-    "java": ">=17",
+    "minecraft": ">26.1-",
+    "fabricloader": ">=0.18.0",
+    "fabric-api": "*",
     "trinkets": "*"
-  },
-
-  "custom": {
-    "mc-publish": {
-      "modrinth": "JrIYhb1P",
-      "curseforge": "436659",
-      "loaders": ["fabric", "quilt"],
-      "dependencies": [
-        "fabric(required){modrinth:P7dR8mSH}{curseforge:306612}#(ignore:github)",
-        "trinkets(required){modrinth:5aaWibi9}{curseforge:341284}#(ignore:github)"
-      ]
-    }
   }
 }

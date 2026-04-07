@@ -1,63 +1,72 @@
 package io.github.apace100.cosmetic_armor;
 
-import dev.emi.trinkets.api.*;
+import eu.pb4.trinkets.api.SlotType;
+import eu.pb4.trinkets.api.TrinketAttachment;
+import eu.pb4.trinkets.api.TrinketSlotAccess;
+import eu.pb4.trinkets.api.TrinketsApi;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.util.TriState;
-import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.registry.tag.*;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.Pair;
-import net.minecraft.registry.RegistryKeys;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.tags.TagKey;
+import net.minecraft.util.Tuple;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
 import java.util.Optional;
 
 public class CosmeticArmor implements ModInitializer {
 
-	public static final String MODID = "cosmetic-armor";
+	public static final String MODID = "cosmeticarmor";
 
-	public static final TagKey<Item> BLACKLIST = TagKey.of(RegistryKeys.ITEM, id("blacklist"));
-	public static final TagKey<Item> ALWAYS_VISIBLE = TagKey.of(RegistryKeys.ITEM, id("always_visible"));
+	public static final TagKey<Item> BLACKLIST = TagKey.create(Registries.ITEM, id("blacklist"));
+	public static final TagKey<Item> ALWAYS_VISIBLE = TagKey.create(Registries.ITEM, id("always_visible"));
 
 	@Override
 	public void onInitialize() {
-		for(int i = 0; i < 4; i++) {
-			EquipmentSlot slot = EquipmentSlot.fromTypeIndex(EquipmentSlot.Type.ARMOR, i);
+		EquipmentSlot[] slots = new EquipmentSlot[]{
+				EquipmentSlot.HEAD,
+				EquipmentSlot.CHEST,
+				EquipmentSlot.LEGS,
+				EquipmentSlot.FEET
+		};
+
+		for(EquipmentSlot slot : slots) {
 			TrinketsApi.registerTrinketPredicate(id(slot.getName()), (stack, slotReference, entity) -> {
-				if(stack.isIn(BLACKLIST)) {
-					return TriState.FALSE;
+				if(stack.is(BLACKLIST)) {
+					return TriState.FALSE.get();
 				}
-				if(MobEntity.getPreferredEquipmentSlot(stack) == slot) {
-					return TriState.TRUE;
+				if(entity.getEquipmentSlotForItem(stack) == slot) {
+					return TriState.TRUE.get();
 				}
-				return TriState.DEFAULT;
+				return TriState.DEFAULT.get();
 			});
 		}
 	}
 
 	public static ItemStack getCosmeticArmor(LivingEntity entity, EquipmentSlot slot) {
-		Optional<TrinketComponent> component = TrinketsApi.getTrinketComponent(entity);
+		Optional<TrinketAttachment> component = Optional.ofNullable(TrinketsApi.getAttachment(entity));
 		if(component.isPresent()) {
-			List<Pair<SlotReference, ItemStack>> list = component.get().getEquipped(stack -> MobEntity.getPreferredEquipmentSlot(stack) == slot);
-			for(Pair<SlotReference, ItemStack> equipped : list) {
-				SlotType slotType = equipped.getLeft().inventory().getSlotType();
-				if(!slotType.getName().equals("cosmetic")) {
+			List<Tuple<TrinketSlotAccess, ItemStack>> list = component.get().getEquipped(stack -> entity.getEquipmentSlotForItem(stack) == slot);
+
+			for(Tuple<TrinketSlotAccess, ItemStack> equipped : list) {
+				SlotType slotType = equipped.getA().inventory().slotType();
+				if(!slotType.name().equals("cosmetic")) {
 					continue;
 				}
-				if(!slotType.getGroup().equalsIgnoreCase(slot.getName())) {
+				if(!slotType.group().equalsIgnoreCase(slot.getName())) {
 					continue;
 				}
-				return equipped.getRight();
+				return equipped.getB();
 			}
 		}
 		return ItemStack.EMPTY;
 	}
 
 	private static Identifier id(String path) {
-		return new Identifier(MODID, path);
+		return Identifier.fromNamespaceAndPath(MODID, path);
 	}
 }
