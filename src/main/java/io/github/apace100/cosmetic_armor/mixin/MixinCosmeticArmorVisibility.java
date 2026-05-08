@@ -5,7 +5,6 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.ArmorRenderer;
 import net.fabricmc.fabric.impl.client.rendering.ArmorRendererRegistryImpl;
-import net.minecraft.client.gui.screen.TitleScreen;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.feature.ArmorFeatureRenderer;
 import net.minecraft.client.render.entity.feature.FeatureRenderer;
@@ -14,21 +13,26 @@ import net.minecraft.client.render.entity.model.BipedEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.item.*;
+import net.minecraft.item.ArmorItem;
+import net.minecraft.item.ArmorMaterial;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.item.trim.ArmorTrim;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.DyedColorComponent;
+import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 @Environment(EnvType.CLIENT)
@@ -39,19 +43,20 @@ public abstract class MixinCosmeticArmorVisibility<T extends LivingEntity, M ext
 
 	@Shadow protected abstract boolean usesInnerModel(EquipmentSlot slot);
 
-	@Shadow protected abstract void renderArmorParts(MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, ArmorItem item, A model, boolean secondTextureLayer, float red, float green, float blue, @Nullable String overlay);
+	@Unique protected abstract void renderArmorParts(MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, ArmorItem item, A model, boolean secondTextureLayer, float red, float green, float blue, @Nullable Identifier overlay);
 
-	@Shadow protected abstract void renderTrim(ArmorMaterial material, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, ArmorTrim trim, A model, boolean leggings);
+	@Shadow protected abstract void renderTrim(RegistryEntry<ArmorMaterial> material, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, ArmorTrim trim, A model, boolean leggings);
 
 	@Shadow protected abstract void renderGlint(MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, A model);
 
 	@Unique
-	private List<Supplier<Boolean>> cosmeticarmor$renderList = new LinkedList<>();
+	private final List<Supplier<Boolean>> cosmeticarmor$renderList = new LinkedList<>();
 
 	public MixinCosmeticArmorVisibility(FeatureRendererContext<T, M> context) {
 		super(context);
 	}
 
+	@SuppressWarnings({"unchecked", "UnstableApiUsage"})
 	@Inject(method = "renderArmor", at = @At("HEAD"), cancellable = true)
 	private void renderCustomArmor(MatrixStack matrices, VertexConsumerProvider vertexConsumers, T entity, EquipmentSlot slot, int light, A model, CallbackInfo ci) {
 		ItemStack equippedStack = entity.getEquippedStack(slot);
@@ -62,14 +67,14 @@ public abstract class MixinCosmeticArmorVisibility<T extends LivingEntity, M ext
 			if (renderer != null) {
 				cosmeticarmor$renderList.add(() -> {
 					renderer.render(matrices, vertexConsumers, cosmeticStack, entity, slot, light,
-						(BipedEntityModel<LivingEntity>) getContextModel());
+							(BipedEntityModel<LivingEntity>) getContextModel());
 					return true;
 				});
 				ci.cancel();
 			} else {
 				if(ArmorRendererRegistryImpl.get(equippedStack.getItem()) != null) {
 					cosmeticarmor$renderList.add(() -> {
-						cosmeticarmor$renderArmor(matrices, vertexConsumers, entity, cosmeticStack, slot, light, model);
+						cosmeticarmor$renderArmor(matrices, vertexConsumers, cosmeticStack, slot, light, model);
 						return true;
 					});
 					ci.cancel();
@@ -95,27 +100,28 @@ public abstract class MixinCosmeticArmorVisibility<T extends LivingEntity, M ext
 	}
 
 	@Unique
-	private void cosmeticarmor$renderArmor(MatrixStack matrices, VertexConsumerProvider vertexConsumers, T entity, ItemStack itemStack, EquipmentSlot armorSlot, int light, A model) {
+	private void cosmeticarmor$renderArmor(MatrixStack matrices, VertexConsumerProvider vertexConsumers, ItemStack itemStack, EquipmentSlot armorSlot, int light, A model) {
 		Item var9 = itemStack.getItem();
 		if (var9 instanceof ArmorItem armorItem) {
 			if (armorItem.getSlotType() == armorSlot) {
-				((M) this.getContextModel()).copyBipedStateTo(model);
+				this.getContextModel().copyBipedStateTo(model);
 				this.setVisible(model, armorSlot);
 				boolean bl = this.usesInnerModel(armorSlot);
-				if (armorItem instanceof DyeableArmorItem dyeableArmorItem) {
-					int i = dyeableArmorItem.getColor(itemStack);
+				if (itemStack.contains(DataComponentTypes.DYED_COLOR)) {
+					int i = DyedColorComponent.getColor(itemStack, -6265536);
 					float f = (float) (i >> 16 & 255) / 255.0F;
 					float g = (float) (i >> 8 & 255) / 255.0F;
 					float h = (float) (i & 255) / 255.0F;
-					this.renderArmorParts(matrices, vertexConsumers, light, armorItem, model, bl, f, g, h, (String) null);
-					this.renderArmorParts(matrices, vertexConsumers, light, armorItem, model, bl, 1.0F, 1.0F, 1.0F, "overlay");
+					this.renderArmorParts(matrices, vertexConsumers, light, armorItem, model, bl, f, g, h, null);
+					this.renderArmorParts(matrices, vertexConsumers, light, armorItem, model, bl, 1.0F, 1.0F, 1.0F, Identifier.ofVanilla("overlay"));
 				} else {
-					this.renderArmorParts(matrices, vertexConsumers, light, armorItem, model, bl, 1.0F, 1.0F, 1.0F, (String) null);
+					this.renderArmorParts(matrices, vertexConsumers, light, armorItem, model, bl, 1.0F, 1.0F, 1.0F, null);
 				}
 
-				ArmorTrim.getTrim(entity.getWorld().getRegistryManager(), itemStack).ifPresent((trim) -> {
+				ArmorTrim trim = itemStack.get(DataComponentTypes.TRIM);
+				if (trim != null) {
 					this.renderTrim(armorItem.getMaterial(), matrices, vertexConsumers, light, trim, model, bl);
-				});
+				}
 				if (itemStack.hasGlint()) {
 					this.renderGlint(matrices, vertexConsumers, light, model);
 				}
